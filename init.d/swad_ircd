@@ -1,0 +1,69 @@
+#! /bin/sh
+# /etc/init.d/swad_ircd
+#
+
+PID=/var/run/swad_ircd.pid
+
+#check superuser accesss
+if [ "$(id -u)" != "0" ]; then
+    echo "swad_ircd: superuser access required"
+    exit
+fi
+
+
+#check if swad_ircd binary exists
+SWAD_IRCD=$(which swad_ircd 2>/dev/null)
+if [ -z $SWAD_IRCD ]; then
+    echo "swad_ircd cannot be found!"
+    exit
+fi
+
+
+#include standard functions
+if [ -f /etc/init.d/functions ]; then
+    . /etc/init.d/functions
+else
+    function echo_success () { echo -n "    [  OK  ]  " ; }
+    function echo_failure () { echo -n "    [FAILED]  " ; }
+fi
+
+
+case "$1" in
+  start)
+    echo -n "Starting swad_ircd "    
+    start-stop-daemon --background --start --make-pidfile \
+	--pidfile /var/run/swad_ircd.pid \
+	--exec $SWAD_IRCD \
+	--
+
+    #error?
+    if [ $? -eq 0 ]; then
+	echo_success
+    elif [ $? -ne 1 ]; then
+	echo_failure
+    fi
+    echo '';
+    ;;
+  stop)
+	if [ ! -f $PID ]; then
+	    echo "swad_ircd is already stopped"
+	else
+	    echo -n "Stopping swad_ircd"	    
+	    start-stop-daemon --stop --pidfile /var/run/swad_ircd.pid 	  
+
+	    #error?
+	    if [ $? -eq 0 ]; then
+		echo_success
+	    else
+		echo_failure
+	    fi
+	    echo '';
+	fi    
+    ;;
+  *)
+    echo "Usage: /etc/init.d/swad_ircd {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
