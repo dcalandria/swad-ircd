@@ -37,7 +37,7 @@ class IrcChannel
 public:  
   IrcChannel ()
     : name (), topic (), key(), users(), operators() {}  
-  ~IrcChannel () {}  
+  virtual ~IrcChannel () {}  
   IrcChannel ( const std::string& _name, const std::string& _topic, const std::string& _key = std::string() )
     : name (_name), topic (_topic), key(), users(), operators() {}      
   const std::string& GetName () const  {return name;  }  
